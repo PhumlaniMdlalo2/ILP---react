@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
+import { useForm } from '@formspree/react'
 import { DollarIcon, BookOpenIcon, UsersIcon, MapPinIcon, CheckCircleIcon } from './Icons'
+
+const FORMSPREE_ID = (import.meta.env.VITE_FORMSPREE_ID || '').trim() || 'meaqaynj'
 
 const INTERESTS = [
   'Community Vegetable Gardens',
@@ -35,7 +38,7 @@ const PERKS = [
   },
 ]
 
-const EMPTY = { name: '', email: '', phone: '', interest: '', message: '', 'bot-field': '' }
+const EMPTY = { name: '', email: '', phone: '', interest: '', message: '' }
 
 function validate(form) {
   const errors = {}
@@ -48,8 +51,8 @@ function validate(form) {
 export default function Volunteer() {
   const [form, setForm] = useState(EMPTY)
   const [errors, setErrors] = useState({})
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [state, handleSubmit] = useForm(FORMSPREE_ID)
+  const { submitting, succeeded, errors: submitError } = state
   const summaryRef = useRef(null)
   const sectionRef = useRef(null)
 
@@ -78,7 +81,7 @@ export default function Volunteer() {
     }
   }
 
-  const handleSubmit = async e => {
+  const onSubmit = e => {
     e.preventDefault()
     const fieldErrors = validate(form)
     if (Object.keys(fieldErrors).length) {
@@ -86,23 +89,11 @@ export default function Volunteer() {
       setTimeout(() => summaryRef.current?.focus(), 50)
       return
     }
-    setLoading(true)
-    try {
-      const res = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ 'form-name': 'volunteer', ...form }).toString(),
-      })
-      if (!res.ok) throw new Error()
-      setSubmitted(true)
-    } catch {
-      setErrors({ submit: 'Something went wrong. Please try again or email us directly.' })
-    } finally {
-      setLoading(false)
-    }
+    setErrors({})
+    handleSubmit(form)
   }
 
-  const hasErrors = Object.keys(errors).some(k => k !== 'submit')
+  const hasErrors = Object.keys(errors).length > 0
 
   return (
     <section className="volunteer" id="volunteer" ref={sectionRef}>
@@ -134,7 +125,7 @@ export default function Volunteer() {
           </div>
 
           <div className="volunteer-form fade-in" style={{ transitionDelay: '0.18s' }}>
-            {submitted ? (
+            {succeeded ? (
               <div className="form-success" role="alert">
                 <CheckCircleIcon size={48} className="success-icon" style={{ color: 'var(--green-medium)' }} />
                 <h3>Thank You</h3>
@@ -146,25 +137,21 @@ export default function Volunteer() {
             ) : (
               <form
                 name="volunteer"
-                method="POST"
-                data-netlify="true"
-                data-netlify-honeypot="bot-field"
-                onSubmit={handleSubmit}
+                onSubmit={onSubmit}
                 noValidate
                 aria-label="Volunteer interest form"
               >
-                <input type="hidden" name="form-name" value="volunteer" />
-                <input type="hidden" name="bot-field" value={form['bot-field']} />
-
                 <h3 className="form-title">Express Your Interest</h3>
 
-                {errors.submit && (
+                {submitError && (
                   <div className="form-error-summary" role="alert">
-                    <p style={{ fontSize: '0.875rem', color: '#b91c1c' }}>{errors.submit}</p>
+                    <p style={{ fontSize: '0.875rem', color: '#b91c1c' }}>
+                      {submitError.message || 'Something went wrong. Please try again or email us directly.'}
+                    </p>
                   </div>
                 )}
 
-                {hasErrors && !errors.submit && (
+                {hasErrors && (
                   <div
                     className="form-error-summary"
                     role="alert"
@@ -261,11 +248,11 @@ export default function Volunteer() {
                 <button
                   type="submit"
                   className="btn btn-green"
-                  disabled={loading}
-                  aria-busy={loading}
+                  disabled={submitting}
+                  aria-busy={submitting}
                 >
-                  {loading && <span className="btn-spinner" aria-hidden="true" />}
-                  {loading ? 'Sending…' : 'Send My Interest'}
+                  {submitting && <span className="btn-spinner" aria-hidden="true" />}
+                  {submitting ? 'Sending…' : 'Send My Interest'}
                 </button>
               </form>
             )}
