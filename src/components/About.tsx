@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { BadgeCheckIcon } from './Icons'
+import { BadgeCheckIcon, LeafIcon } from './Icons'
 
 export default function About() {
   const ref = useRef(null)
@@ -24,7 +24,9 @@ export default function About() {
               role="img"
               aria-label="Community members working together in the garden"
             >
-              <span className="img-placeholder-label">Community Photo</span>
+              <div className="img-placeholder-icon" aria-hidden="true">
+                <LeafIcon size={36} />
+              </div>
             </div>
             <div className="about-badge" aria-label="Founded in 2009">
               <span className="badge-num">2009</span>

@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { useScroll } from '@/components/ui/use-scroll';
+import logoSrc from '@/assets/logo.png';
 
 const NAV_LINKS = [
   { href: '#about',     label: 'About' },
@@ -59,13 +60,16 @@ export function Header() {
           href="#hero"
           onClick={close}
           aria-label="Ithemba Labantu Projects – home"
-          className="flex flex-col leading-[1.2]"
+          className="flex items-center gap-3"
         >
-          <span className="text-[1.05rem] font-bold text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
-            Ithemba Labantu Projects
-          </span>
-          <span className="text-[0.68rem] italic" style={{ color: 'var(--green-light)' }}>
-            Hope of the People · NPO 068-348
+          <img src={logoSrc} alt="" className="h-9 w-auto shrink-0" />
+          <span className="flex flex-col leading-[1.2]">
+            <span className="text-[1.05rem] font-bold text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              Ithemba Labantu Projects
+            </span>
+            <span className="text-[0.68rem] italic" style={{ color: 'var(--green-light)' }}>
+              Hope of the People · NPO 068-348
+            </span>
           </span>
         </a>
 
